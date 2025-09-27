@@ -5,16 +5,16 @@ go 1.19
 require (
 	github.com/ajg/form v1.5.1
 	github.com/evanphx/json-patch/v5 v5.9.11
-	github.com/google/gops v0.3.3-0.20171222022621-e09130d89827
+	github.com/google/gops v0.3.28
 	github.com/labstack/echo v3.2.5+incompatible
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.12.1
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.4
 	github.com/tsuru/tsuru v0.0.0-20230906124500-bbff44fc6316
 	github.com/uber/jaeger-client-go v2.25.0+incompatible
 	go.mongodb.org/mongo-driver v1.5.1
@@ -52,16 +52,15 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.3 // indirect
-	github.com/google/go-cmp v0.5.8 // indirect
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/howeyc/fsnotify v0.9.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/inconshreveable/mousetrap v1.0.0 // indirect
+	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
-	github.com/kardianos/osext v0.0.0-20170510131534-ae77be60afb1 // indirect
 	github.com/klauspost/compress v1.11.13 // indirect
 	github.com/labstack/gommon v0.2.2-0.20170925052817-57409ada9da0 // indirect
 	github.com/magiconair/properties v1.8.1 // indirect
