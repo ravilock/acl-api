@@ -1,6 +1,6 @@
 module github.com/tsuru/acl-api
 
-go 1.19
+go 1.20
 
 require (
 	github.com/ajg/form v1.5.1
