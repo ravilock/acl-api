@@ -6,9 +6,10 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"sort"
 	"strings"
 	"testing"
@@ -80,7 +81,7 @@ func Test_addRule(t *testing.T) {
 		require.Nil(t, err)
 		defer rsp.Body.Close()
 
-		bodyData, err := ioutil.ReadAll(rsp.Body)
+		bodyData, err := io.ReadAll(rsp.Body)
 		require.Nil(t, err)
 		assert.Equal(t, 201, rsp.StatusCode)
 		var result types.Rule
@@ -267,7 +268,6 @@ func Test_addRule(t *testing.T) {
 		require.NoError(t, err)
 		assert.True(t, strings.HasPrefix(result.Message, "RuleName: must be no more than 253 characters"), "received message: "+result.Message)
 	})
-
 }
 
 func Test_listRules(t *testing.T) {
@@ -330,7 +330,7 @@ func Test_listRules(t *testing.T) {
 		require.Nil(t, err)
 		defer rsp.Body.Close()
 
-		bodyData, err := ioutil.ReadAll(rsp.Body)
+		bodyData, err := io.ReadAll(rsp.Body)
 		require.Nil(t, err)
 		assert.Equal(t, 200, rsp.StatusCode)
 		var result []types.Rule
@@ -405,7 +405,7 @@ func Test_listRules(t *testing.T) {
 			require.Nil(t, err)
 			defer rsp.Body.Close()
 
-			bodyData, err := ioutil.ReadAll(rsp.Body)
+			bodyData, err := io.ReadAll(rsp.Body)
 			require.Nil(t, err)
 			assert.Equal(t, 200, rsp.StatusCode)
 			var result []types.Rule
@@ -419,6 +419,90 @@ func Test_listRules(t *testing.T) {
 			assert.Equal(t, ruleIDs, tt.expected)
 		})
 	}
+}
+
+func Test_decodeFilter(t *testing.T) {
+	t.Run("Success case: uppercase keys", func(t *testing.T) {
+		params := map[string][]string{
+			"METADATA.meta-a":                          {"valueA"},
+			"CREATOR":                                  {"creator1"},
+			"SOURCE.TSURUAPP.APPNAME":                  {"myApp"},
+			"DESTINATION.EXTERNALDNS.NAME":             {"dns.example.com"},
+			"DESTINATION.EXTERNALDNS.PORTS.0.PROTOCOL": {"tcp"},
+			"DESTINATION.EXTERNALDNS.PORTS.0.PORT":     {"8080"},
+		}
+		filter, err := decodeFilter(url.Values(params))
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"meta-a": "valueA"}, filter.Metadata)
+		assert.Equal(t, "creator1", filter.Creator)
+		assert.NotNil(t, filter.Source.TsuruApp)
+		assert.Equal(t, "myApp", filter.Source.TsuruApp.AppName)
+		assert.NotNil(t, filter.Destination.ExternalDNS)
+		assert.Equal(t, "dns.example.com", filter.Destination.ExternalDNS.Name)
+		assert.EqualValues(t, []types.ProtoPort{{Protocol: "tcp", Port: 8080}}, filter.Destination.ExternalDNS.Ports)
+	})
+
+	t.Run("Success case: lowercase keys", func(t *testing.T) {
+		params := map[string][]string{
+			"metadata.meta-b":                          {"valueB"},
+			"creator":                                  {"creator2"},
+			"source.tsuruapp.appname":                  {"myapp2"},
+			"destination.externaldns.name":             {"dns2.example.com"},
+			"destination.externaldns.ports.0.protocol": {"udp"},
+			"destination.externaldns.ports.0.port":     {"53"},
+		}
+		filter, err := decodeFilter(url.Values(params))
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"meta-b": "valueB"}, filter.Metadata)
+		assert.Equal(t, "creator2", filter.Creator)
+		assert.NotNil(t, filter.Source.TsuruApp)
+		assert.Equal(t, "myapp2", filter.Source.TsuruApp.AppName)
+		assert.NotNil(t, filter.Destination.ExternalDNS)
+		assert.Equal(t, "dns2.example.com", filter.Destination.ExternalDNS.Name)
+		assert.EqualValues(t, []types.ProtoPort{{Protocol: "udp", Port: 53}}, filter.Destination.ExternalDNS.Ports)
+	})
+
+	t.Run("Success case: mixed case keys", func(t *testing.T) {
+		params := map[string][]string{
+			"MetaData.Meta-C":                          {"valueC"},
+			"Creator":                                  {"creator3"},
+			"Source.TsuruApp.AppName":                  {"myApp3"},
+			"Destination.ExternalDNS.Name":             {"dns3.example.com"},
+			"Destination.ExternalDNS.Ports.0.Protocol": {"tcp"},
+			"Destination.ExternalDNS.Ports.0.Port":     {"443"},
+		}
+		filter, err := decodeFilter(url.Values(params))
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"Meta-C": "valueC"}, filter.Metadata)
+		assert.Equal(t, "creator3", filter.Creator)
+		assert.NotNil(t, filter.Source.TsuruApp)
+		assert.Equal(t, "myApp3", filter.Source.TsuruApp.AppName)
+		assert.NotNil(t, filter.Destination.ExternalDNS)
+		assert.Equal(t, "dns3.example.com", filter.Destination.ExternalDNS.Name)
+		assert.EqualValues(t, []types.ProtoPort{{Protocol: "tcp", Port: 443}}, filter.Destination.ExternalDNS.Ports)
+	})
+
+	// Success case: unknown keys
+	t.Run("Success case: unknown keys", func(t *testing.T) {
+		params := map[string][]string{
+			"metadata.meta-d":                          {"valueD"},
+			"creator":                                  {"creator4"},
+			"source.tsuruapp.appname":                  {"myapp4"},
+			"destination.externaldns.name":             {"dns4.example.com"},
+			"destination.externaldns.ports.0.protocol": {"tcp"},
+			"destination.externaldns.ports.0.port":     {"8443"},
+			"unknown.key":                              {"shouldBeIgnored"},
+		}
+		filter, err := decodeFilter(url.Values(params))
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"meta-d": "valueD"}, filter.Metadata)
+		assert.Equal(t, "creator4", filter.Creator)
+		assert.NotNil(t, filter.Source.TsuruApp)
+		assert.Equal(t, "myapp4", filter.Source.TsuruApp.AppName)
+		assert.NotNil(t, filter.Destination.ExternalDNS)
+		assert.Equal(t, "dns4.example.com", filter.Destination.ExternalDNS.Name)
+		assert.EqualValues(t, []types.ProtoPort{{Protocol: "tcp", Port: 8443}}, filter.Destination.ExternalDNS.Ports)
+	})
 }
 
 func Test_getRule(t *testing.T) {

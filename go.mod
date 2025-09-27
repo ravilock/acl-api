@@ -3,7 +3,7 @@ module github.com/tsuru/acl-api
 go 1.19
 
 require (
-	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f
+	github.com/ajg/form v1.5.1
 	github.com/evanphx/json-patch/v5 v5.6.0
 	github.com/google/gops v0.3.3-0.20171222022621-e09130d89827
 	github.com/labstack/echo v3.2.5+incompatible
@@ -19,6 +19,7 @@ require (
 	github.com/uber/jaeger-client-go v2.25.0+incompatible
 	go.mongodb.org/mongo-driver v1.5.1
 	golang.org/x/oauth2 v0.1.0
+	k8s.io/api v0.23.17
 	k8s.io/apiextensions-apiserver v0.20.6
 	k8s.io/apimachinery v0.23.17
 	k8s.io/client-go v0.23.17
@@ -116,7 +117,6 @@ require (
 	gopkg.in/ini.v1 v1.51.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.23.17 // indirect
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20211115234752-e816edb12b65 // indirect
 	k8s.io/utils v0.0.0-20220210201930-3a6ce19ff2f9 // indirect

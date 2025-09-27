@@ -7,6 +7,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -20,12 +21,20 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 
-func listRules(c echo.Context) error {
+func decodeFilter(urlParams url.Values) (types.Rule, error) {
 	var filter types.Rule
 	d := form.NewDecoder(nil)
 	d.IgnoreCase(true)
 	d.IgnoreUnknownKeys(true)
-	err := d.DecodeValues(&filter, c.QueryParams())
+	err := d.DecodeValues(&filter, urlParams)
+	if err != nil {
+		return filter, err
+	}
+	return filter, nil
+}
+
+func listRules(c echo.Context) error {
+	filter, err := decodeFilter(c.QueryParams())
 	if err != nil {
 		return err
 	}
