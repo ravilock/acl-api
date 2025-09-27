@@ -14,7 +14,7 @@ require (
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.7.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.11.1
 	github.com/tsuru/tsuru v0.0.0-20230906124500-bbff44fc6316
 	github.com/uber/jaeger-client-go v2.25.0+incompatible
 	go.mongodb.org/mongo-driver v1.5.1
