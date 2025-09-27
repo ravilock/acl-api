@@ -122,7 +122,7 @@ func TestValidateRuleType(t *testing.T) {
 					Instance:    "blah",
 				},
 			},
-			expected: `Invalid rpaas service name`,
+			expected: `invalid rpaas service name`,
 		},
 		{
 			rt: RuleType{
@@ -131,7 +131,7 @@ func TestValidateRuleType(t *testing.T) {
 					Instance:    "blah-blah123/k",
 				},
 			},
-			expected: `Invalid rpaas instance name`,
+			expected: `invalid rpaas instance name`,
 		},
 		{
 			rt: RuleType{

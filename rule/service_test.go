@@ -188,7 +188,7 @@ func Test_RuleService_Save(t *testing.T) {
 						ServiceName: "",
 					},
 				},
-			}, err: `source: Kubernetes Service Rule: has been deactivated for use, please use instead: App or RPaaS destinations`},
+			}, err: `source: kubernetes service rule has been deactivated for use, please use instead: App or RPaaS destinations`},
 		}
 		svc := GetService()
 		for _, tt := range tests {

@@ -99,11 +99,11 @@ func (r *RuleType) Validate() error {
 			return errors.New("cannot have empty rpaas serviceName or instance")
 		}
 		if errs := validation.IsDNS1035Label(r.RpaasInstance.ServiceName); len(errs) > 0 {
-			return errors.New("Invalid rpaas service name")
+			return errors.New("invalid rpaas service name")
 		}
 
 		if errs := validation.IsDNS1035Label(r.RpaasInstance.Instance); len(errs) > 0 {
-			return errors.New("Invalid rpaas instance name")
+			return errors.New("invalid rpaas instance name")
 		}
 
 		countSet++
@@ -162,7 +162,7 @@ func (r *RuleType) Validate() error {
 	if r.KubernetesService != nil {
 		// desativamos devido ao uso incorreto
 		// thread: https://globo.slack.com/archives/G62GPMXKN/p1637761216109500
-		return errors.New("Kubernetes Service Rule: has been deactivated for use, please use instead: App or RPaaS destinations")
+		return errors.New("kubernetes service rule has been deactivated for use, please use instead: App or RPaaS destinations")
 	}
 
 	if countSet != 1 {

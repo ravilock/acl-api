@@ -4,7 +4,6 @@
 package cmd
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -69,11 +68,11 @@ func TestExecute_flagParsing(t *testing.T) {
 				defer os.Unsetenv(k)
 			}
 			if tt.config != "" {
-				name, err := ioutil.TempDir("", "")
+				name, err := os.MkdirTemp("", "")
 				require.NoError(t, err)
 				defer os.RemoveAll(name)
 				name = filepath.Join(name, "config.json")
-				err = ioutil.WriteFile(name, []byte(tt.config), 0400)
+				err = os.WriteFile(name, []byte(tt.config), 0o400)
 				require.NoError(t, err)
 				os.Args = append(os.Args, "--config", name)
 			}
