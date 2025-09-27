@@ -5,10 +5,10 @@
 package rule
 
 import (
+	"fmt"
 	"reflect"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/tsuru/acl-api/api/types"
 	"github.com/tsuru/acl-api/storage"
@@ -308,11 +308,11 @@ var GetService = func() RuleService {
 func validateRule(r *types.Rule) error {
 	err := r.Source.Validate()
 	if err != nil {
-		return errors.Wrap(err, "source")
+		return fmt.Errorf("source: %w", err)
 	}
 	err = r.Destination.Validate()
 	if err != nil {
-		return errors.Wrap(err, "destination")
+		return fmt.Errorf("destination: %w", err)
 	}
 	return nil
 }

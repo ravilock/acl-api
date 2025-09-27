@@ -84,6 +84,7 @@ func (e *ACLOperatorEngine) SyncApp(r types.Rule) (interface{}, error) {
 		return nil, nil
 	}
 
+	// apps.tsuru.io
 	tsuruClient, err := aclKube.GetTsuruClientWithRestConfig(restConfig)
 	if err != nil {
 		return "", err

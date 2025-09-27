@@ -6,11 +6,11 @@ package external
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"github.com/tsuru/tsuru/app"
@@ -158,7 +158,7 @@ func (t *tsuruClient) doRequest(method, url string, response interface{}) error 
 	}
 	err = json.Unmarshal(data, response)
 	if err != nil {
-		return errors.Wrapf(err, "unable to unmarshal data %q", data)
+		return fmt.Errorf("unable to unmarshal response %q: %w", data, err)
 	}
 	return nil
 }
@@ -186,7 +186,7 @@ func (c *cachedApp) appInfo(appName string) (*app.App, error) {
 	var appData app.App
 	err := c.cli.doRequest(http.MethodGet, "/apps/"+appName, &appData)
 	if err != nil {
-		if httpErr, ok := errors.Cause(err).(*HTTPError); ok {
+		if httpErr := new(HTTPError); errors.As(err, &httpErr) {
 			if httpErr.StatusCode == http.StatusNotFound {
 				c.cachedError = err
 			}
@@ -194,7 +194,7 @@ func (c *cachedApp) appInfo(appName string) (*app.App, error) {
 		return nil, err
 	}
 	if appData.Pool == "" || appData.Name == "" {
-		return nil, errors.Errorf("empty data for app %q", appName)
+		return nil, fmt.Errorf("empty data for app %q", appName)
 	}
 	c.result = &appData
 	return c.result, nil
@@ -222,7 +222,7 @@ func (c *cachedJob) jobInfo(jobName string) (*jobTypes.Job, error) {
 	var jobInfo jobInfoResult
 	err := c.cli.doRequest(http.MethodGet, "/jobs/"+jobName, &jobInfo)
 	if err != nil {
-		if httpErr, ok := errors.Cause(err).(*HTTPError); ok {
+		if httpErr := new(HTTPError); errors.As(err, &httpErr) {
 			if httpErr.StatusCode == http.StatusNotFound {
 				c.cachedError = err
 			}
@@ -230,7 +230,7 @@ func (c *cachedJob) jobInfo(jobName string) (*jobTypes.Job, error) {
 		return nil, err
 	}
 	if jobInfo.Job == nil {
-		return nil, errors.Errorf("empty data for job %q", jobName)
+		return nil, fmt.Errorf("empty data for job %q", jobName)
 	}
 	c.result = jobInfo.Job
 	return c.result, nil
@@ -253,7 +253,7 @@ func (c *cachedPool) poolInfo(poolName string) (*pool.Pool, error) {
 		return nil, err
 	}
 	if pool.Name == "" {
-		return nil, errors.Errorf("pool %q not found", poolName)
+		return nil, fmt.Errorf("empty data for pool %q", poolName)
 	}
 	c.result = &pool
 	return c.result, nil

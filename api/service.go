@@ -6,7 +6,7 @@ package api
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -107,7 +107,7 @@ func serviceBindApp(c echo.Context) error {
 
 func serviceUnbindApp(c echo.Context) error {
 	req := c.Request()
-	data, err := ioutil.ReadAll(req.Body)
+	data, err := io.ReadAll(req.Body)
 	if err != nil {
 		return err
 	}
@@ -260,7 +260,6 @@ func serviceForceSyncRule(c echo.Context) error {
 	rules, err := rulesSvc.FindMetadata(map[string]string{
 		"instance-name": instanceName,
 	})
-
 	if err != nil {
 		return err
 	}

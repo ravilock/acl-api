@@ -5,10 +5,10 @@
 package storage
 
 import (
+	"errors"
 	"net"
 	"time"
 
-	"github.com/pkg/errors"
 	"github.com/tsuru/acl-api/api/types"
 )
 

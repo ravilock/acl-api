@@ -5,7 +5,8 @@
 package rule
 
 import (
-	"github.com/pkg/errors"
+	"errors"
+
 	"github.com/tsuru/acl-api/api/types"
 	"github.com/tsuru/acl-api/external"
 	aclKube "github.com/tsuru/acl-api/kubernetes"
@@ -36,7 +37,6 @@ func (s *tsuruJobRuleLogic) getPoolName() (string, error) {
 		return "", err
 	}
 	return jobInfo.Pool, nil
-
 }
 
 func (s *tsuruJobRuleLogic) getPool() (*pool.Pool, error) {

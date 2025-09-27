@@ -18,44 +18,32 @@ import (
 	"github.com/tsuru/acl-api/rule"
 )
 
-var (
-	cfgFile string
-)
+var cfgFile string
 
 var rootRun = func(cmd *cobra.Command, args []string) error {
 	return api.StartAPI()
 }
 
 func makeCmds() *cobra.Command {
-	var rootCmd = &cobra.Command{
+	rootCmd := &cobra.Command{
 		Version: version.Version,
 		Use:     "acl-api",
 		Short:   "Manage Tsuru App ACLs",
 		RunE:    rootRun,
 	}
 
-	var apiCmd = &cobra.Command{
+	apiCmd := &cobra.Command{
 		Use:   "api",
 		Short: "Run acl-api API and worker",
 		RunE:  rootRun,
 	}
 
-	var workerCmd = &cobra.Command{
-		Use:   "worker",
-		Short: "Run acl-api worker only",
-		RunE: func(cmd *cobra.Command, args []string) error {
-			return api.StartWorker()
-		},
-	}
-
-	var checkRules = &cobra.Command{
+	checkRules := &cobra.Command{
 		Use:   "check-rules",
 		Short: "check weather rules are valid",
 		RunE: func(cmd *cobra.Command, args []string) error {
-
 			svc := rule.GetService()
 			rules, err := svc.FindAll()
-
 			if err != nil {
 				return err
 			}
@@ -74,7 +62,6 @@ func makeCmds() *cobra.Command {
 	}
 
 	rootCmd.AddCommand(apiCmd)
-	rootCmd.AddCommand(workerCmd)
 	rootCmd.AddCommand(checkRules)
 
 	return rootCmd

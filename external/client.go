@@ -10,7 +10,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"strconv"
@@ -35,15 +34,13 @@ const (
 	promSubsystem = "external"
 )
 
-var (
-	httpRequestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
-		Namespace: promNamespace,
-		Subsystem: promSubsystem,
-		Name:      "request_duration_seconds",
-		Help:      "External http request duration seconds",
-		Buckets:   prometheus.ExponentialBuckets(0.1, 2.1, 10),
-	}, []string{"host", "method", "code"})
-)
+var httpRequestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+	Namespace: promNamespace,
+	Subsystem: promSubsystem,
+	Name:      "request_duration_seconds",
+	Help:      "External http request duration seconds",
+	Buckets:   prometheus.ExponentialBuckets(0.1, 2.1, 10),
+}, []string{"host", "method", "code"})
 
 var (
 	baseClient *http.Client
@@ -140,9 +137,9 @@ func (e *BaseHTTPClient) DoRequestDataCtx(ctx context.Context, method, path stri
 		return nil, err
 	}
 	defer rsp.Body.Close()
-	data, err := ioutil.ReadAll(rsp.Body)
+	data, err := io.ReadAll(rsp.Body)
 	if err != nil {
-		return nil, errors.Wrapf(err, "unable to read response body")
+		return nil, fmt.Errorf("unable to read response body: %w", err)
 	}
 	return data, nil
 }

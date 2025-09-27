@@ -6,7 +6,7 @@ package api
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -30,15 +30,19 @@ type serviceMock struct {
 func (s *serviceMock) Create(instance types.ServiceInstance) error {
 	return nil
 }
+
 func (s *serviceMock) Find(instanceName string) (types.ServiceInstance, error) {
 	return types.ServiceInstance{}, nil
 }
+
 func (s *serviceMock) List() ([]types.ServiceInstance, error) {
 	return nil, nil
 }
+
 func (s *serviceMock) Delete(instanceName string) error {
 	return nil
 }
+
 func (s *serviceMock) AddRule(instanceName string, r *types.ServiceRule) ([]types.Rule, error) {
 	r.RuleID = "fake-rule-id"
 	s.addRuleCall = append(s.addRuleCall, r)
@@ -52,11 +56,12 @@ func (s *serviceMock) AddRule(instanceName string, r *types.ServiceRule) ([]type
 			Destination: r.Destination,
 		},
 	}, nil
-
 }
+
 func (s *serviceMock) RemoveRule(instanceName string, ruleID string) error {
 	return nil
 }
+
 func (s *serviceMock) AddApp(instanceName string, appName string) ([]types.Rule, error) {
 	s.bindAppCall = append(s.bindAppCall, map[string]string{
 		"instanceName": instanceName,
@@ -64,6 +69,7 @@ func (s *serviceMock) AddApp(instanceName string, appName string) ([]types.Rule,
 	})
 	return []types.Rule{}, nil
 }
+
 func (s *serviceMock) RemoveApp(instanceName string, appName string) error {
 	s.removeAppCall = append(s.removeAppCall, map[string]string{
 		"instanceName": instanceName,
@@ -79,6 +85,7 @@ func (s *serviceMock) AddJob(instanceName string, jobName string) ([]types.Rule,
 	})
 	return []types.Rule{}, nil
 }
+
 func (s *serviceMock) RemoveJob(instanceName string, jobName string) error {
 	s.removeJobCall = append(s.removeJobCall, map[string]string{
 		"instanceName": instanceName,
@@ -112,6 +119,7 @@ func Test_serviceBindApp(t *testing.T) {
 		},
 	}, mock.bindAppCall)
 }
+
 func Test_serviceUnbindApp(t *testing.T) {
 	mock := &serviceMock{}
 	service.GetService = func() service.Service {
@@ -162,6 +170,7 @@ func Test_serviceBindJob(t *testing.T) {
 		},
 	}, mock.bindJobCall)
 }
+
 func Test_serviceUnbindJob(t *testing.T) {
 	mock := &serviceMock{}
 	service.GetService = func() service.Service {
@@ -210,7 +219,7 @@ func Test_serviceRuleAdd(t *testing.T) {
 	require.Nil(t, err)
 	defer rsp.Body.Close()
 	if !assert.Equal(t, 200, rsp.StatusCode) {
-		body, _ := ioutil.ReadAll(rsp.Body)
+		body, _ := io.ReadAll(rsp.Body)
 		assert.Fail(t, "body: "+string(body))
 	}
 

@@ -6,6 +6,7 @@ package types
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"reflect"
@@ -14,7 +15,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/util/validation"
 )
 
@@ -223,7 +223,7 @@ func validatePorts(ports []ProtoPort) error {
 
 	for _, p := range ports {
 		if p.Port == 0 {
-			return errors.Errorf("invalid port number 0")
+			return errors.New("invalid port number 0")
 		}
 		if _, isValid := validProtos[strings.ToUpper(p.Protocol)]; isValid {
 			continue
@@ -233,7 +233,7 @@ func validatePorts(ports []ProtoPort) error {
 			validProtoStrs = append(validProtoStrs, proto)
 		}
 		sort.Strings(validProtoStrs)
-		return errors.Errorf("invalid protocol %q, valid values are: %v", p.Protocol, strings.Join(validProtoStrs, ", "))
+		return fmt.Errorf("invalid protocol %q, valid values are: %v", p.Protocol, strings.Join(validProtoStrs, ", "))
 	}
 	return nil
 }
@@ -341,7 +341,7 @@ func (rt *RuleType) String() string {
 func (rt *RuleType) CacheKey() (string, error) {
 	result, err := json.Marshal(rt)
 	if err != nil {
-		return "", errors.Wrap(err, "could not create cache key for rule type")
+		return "", fmt.Errorf("could not create cache key for rule type: %w", err)
 	}
 	return string(result), nil
 }
