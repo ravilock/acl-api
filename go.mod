@@ -4,7 +4,7 @@ go 1.19
 
 require (
 	github.com/ajg/form v1.5.1
-	github.com/evanphx/json-patch/v5 v5.6.0
+	github.com/evanphx/json-patch/v5 v5.9.11
 	github.com/google/gops v0.3.3-0.20171222022621-e09130d89827
 	github.com/labstack/echo v3.2.5+incompatible
 	github.com/opentracing/opentracing-go v1.2.0
@@ -106,7 +106,7 @@ require (
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
 	golang.org/x/sync v0.1.0 // indirect
-	golang.org/x/sys v0.8.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 	golang.org/x/term v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
