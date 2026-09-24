@@ -16,16 +16,28 @@ import (
 	"time"
 
 	"github.com/google/gops/agent"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"github.com/tsuru/acl-api/api/version"
+	_ "github.com/tsuru/acl-api/docs"
 	"github.com/tsuru/acl-api/engine"
 	"github.com/tsuru/acl-api/engine/operator"
 	_ "github.com/tsuru/acl-api/storage/mongodb"
 )
+
+// @title ACL API
+// @version Set when compiling
+// @description ACL API stores network access rules consumed by acl-operator.
+// @contact.name Tsuru
+// @contact.url https://github.com/tsuru/acl-api
+// @license.name BSD 3-Clause License
+// @license.url https://github.com/tsuru/acl-api/blob/main/LICENSE
+// @BasePath /
+// @securityDefinitions.basic BasicAuth
 
 func handleSignals(fn func()) {
 	quit := make(chan os.Signal, 2)
@@ -43,7 +55,7 @@ func shutdownEcho(e *echo.Echo) {
 }
 
 func shouldSkipAuth(path string) bool {
-	return strings.HasPrefix(path, "/plugin") || path == "/healthcheck" || path == "/metrics"
+	return strings.HasPrefix(path, "/plugin") || strings.HasPrefix(path, "/swagger") || path == "/healthcheck" || path == "/metrics"
 }
 
 type PluginManifest struct {
@@ -112,8 +124,8 @@ func setupEcho() *echo.Echo {
 		if he, ok := err.(*echo.HTTPError); ok {
 			code = he.Code
 			msg = he.Message
-			if he.Inner != nil {
-				msg = fmt.Sprintf("%v, %v", err, he.Inner)
+			if he.Internal != nil {
+				msg = fmt.Sprintf("%v, %v", err, he.Internal)
 			}
 		} else {
 			msg = err.Error()
@@ -179,6 +191,7 @@ func StartAPI() error {
 }
 
 func configHandlers(e *echo.Echo) {
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 	e.GET("/debug/pprof/*", echo.WrapHandler(http.DefaultServeMux))
 	e.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
 	e.GET("/rules", listRules)

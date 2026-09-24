@@ -6,11 +6,13 @@ package api
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -99,4 +101,42 @@ func TestAuthentication(t *testing.T) {
 			assert.Equal(t, tt.expectedCode, rsp.StatusCode)
 		})
 	}
+}
+
+func TestSwaggerDocumentationIsPublic(t *testing.T) {
+	defer resetViper()
+	viper.Set("auth.user", "admin")
+	viper.Set("auth.password", "admin")
+
+	e := setupEcho()
+	srv := httptest.NewServer(e.Server.Handler)
+	defer srv.Close()
+
+	for _, path := range []string{"/swagger/index.html", "/swagger/doc.json", "/swagger/doc.yaml"} {
+		t.Run(path, func(t *testing.T) {
+			response, err := http.Get(srv.URL + path)
+			require.NoError(t, err)
+			defer response.Body.Close()
+			assert.Equal(t, http.StatusOK, response.StatusCode)
+		})
+	}
+
+	response, err := http.Get(srv.URL + "/swagger/doc.json")
+	require.NoError(t, err)
+	defer response.Body.Close()
+
+	var document struct {
+		Swagger string                     `json:"swagger"`
+		Paths   map[string]json.RawMessage `json:"paths"`
+	}
+	require.NoError(t, json.NewDecoder(response.Body).Decode(&document))
+	assert.Equal(t, "2.0", document.Swagger)
+	assert.Contains(t, document.Paths, "/rules")
+	assert.Contains(t, document.Paths, "/resources/{instance}/rule")
+
+	response, err = http.Get(srv.URL + "/rules")
+	require.NoError(t, err)
+	defer response.Body.Close()
+	assert.Equal(t, http.StatusUnauthorized, response.StatusCode)
+	assert.True(t, strings.HasPrefix(response.Header.Get("WWW-Authenticate"), "Basic"))
 }
