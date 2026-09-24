@@ -58,6 +58,8 @@ func shouldSkipAuth(path string) bool {
 	return strings.HasPrefix(path, "/plugin") || strings.HasPrefix(path, "/swagger") || path == "/healthcheck" || path == "/metrics"
 }
 
+const basicAuthRealm = "Restricted"
+
 type PluginManifest struct {
 	SchemaVersion  string
 	Metadata       PluginManifestMetadata
@@ -85,7 +87,7 @@ func setupEcho() *echo.Echo {
 			}
 			return shouldSkipAuth(c.Path())
 		},
-		Realm: "Restricted",
+		Realm: basicAuthRealm,
 		Validator: func(username, password string, c echo.Context) (bool, error) {
 			configUser := viper.GetString("auth.user")
 			configPassword := viper.GetString("auth.password")
@@ -137,6 +139,9 @@ func setupEcho() *echo.Echo {
 		e.Logger.Error(err)
 
 		if !c.Response().Committed {
+			if code == http.StatusUnauthorized {
+				c.Response().Header().Set(echo.HeaderWWWAuthenticate, `Basic realm="`+basicAuthRealm+`"`)
+			}
 			if c.Request().Method == http.MethodHead {
 				err = c.NoContent(code)
 			} else {
