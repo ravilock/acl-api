@@ -3,7 +3,7 @@ module github.com/tsuru/acl-api
 go 1.27.4
 
 require (
-	github.com/ajg/form v0.0.0-20160822230020-523a5da1a92f
+	github.com/ajg/form v1.9.0
 	github.com/evanphx/json-patch/v5 v5.6.0
 	github.com/google/gops v0.3.3-0.20171222022621-e09130d89827
 	github.com/labstack/echo/v4 v4.16.3
